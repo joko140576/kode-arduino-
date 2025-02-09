@@ -1,0 +1,62 @@
+#include <Servo.h>
+
+#define TRIG_PIN 9
+#define ECHO_PIN 10
+#define SERVO_PIN 6
+#define LED_HIJAU 3
+#define LED_MERAH 4
+
+Servo palang;
+const int jarak_threshold = 10;  // Jarak mendeteksi mobil (cm)
+
+void setup() {
+    pinMode(TRIG_PIN, OUTPUT);
+    pinMode(ECHO_PIN, INPUT);
+    pinMode(LED_HIJAU, OUTPUT);
+    pinMode(LED_MERAH, OUTPUT);
+
+    palang.attach(SERVO_PIN);
+    palang.write(0);  // Palang dalam posisi tertutup
+    digitalWrite(LED_MERAH, HIGH);  // Lampu merah menyala
+    digitalWrite(LED_HIJAU, LOW);   // Lampu hijau mati
+
+    Serial.begin(9600);
+}
+
+void loop() {
+    long duration;
+    int distance;
+
+    // Mengirim sinyal ultrasonik
+    digitalWrite(TRIG_PIN, LOW);
+    delayMicroseconds(2);
+    digitalWrite(TRIG_PIN, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(TRIG_PIN, LOW);
+
+    // Menerima sinyal pantulan
+    duration = pulseIn(ECHO_PIN, HIGH);
+    distance = duration * 0.034 / 2;  // Konversi ke cm
+
+    Serial.print("Jarak: ");
+    Serial.print(distance);
+    Serial.println(" cm");
+
+    if (distance > 0 && distance < jarak_threshold) {
+        // Mobil terdeteksi → Palang terbuka
+        palang.write(60);
+        digitalWrite(LED_HIJAU, HIGH);
+        digitalWrite(LED_MERAH, LOW);
+        delay(1500);
+        Serial.println("Mobil terdeteksi! Palang terbuka.");
+    } else {
+        // Mobil sudah lewat → Palang menutup
+        palang.write(0);
+        digitalWrite(LED_HIJAU, LOW);
+        digitalWrite(LED_MERAH, HIGH);
+        Serial.println("Tidak ada mobil. Palang menutup.");
+        delay(1000);
+    }
+
+ 
+}

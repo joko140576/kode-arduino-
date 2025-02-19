@@ -1,0 +1,36 @@
+#include <Servo.h>
+
+#define LDR_PIN A0   // Sensor cahaya (LDR) di pin analog A0
+#define LED1 7       // LED pertama di pin 7
+#define LED2 8       // LED kedua di pin 8
+#define SERVO_PIN 9  // Servo di pin 9
+
+Servo jendela;       // Objek servo
+
+void setup() {
+    pinMode(LDR_PIN, INPUT);
+    pinMode(LED1, OUTPUT);
+    pinMode(LED2, OUTPUT);
+    jendela.attach(SERVO_PIN);
+    jendela.write(0); // Mulai dengan jendela tertutup
+    Serial.begin(9600); // Mulai komunikasi Serial untuk debugging
+
+}
+
+void loop() {
+    int cahaya = analogRead(LDR_PIN); // Baca nilai LDR
+    Serial.print("Cahaya: ");
+    Serial.println(cahaya);
+
+    if (cahaya > 100) {  // Jika cahaya terang (buka jendela, matikan LED)
+        jendela.write(90); // Buka jendela 90 derajat
+        digitalWrite(LED1, LOW);
+        digitalWrite(LED2, LOW);
+    } else { // Jika cahaya redup (tutup jendela, nyalakan LED)
+        jendela.write(0);  // Tutup jendela ke 0 derajat
+        digitalWrite(LED1, HIGH);
+        digitalWrite(LED2, HIGH);
+    }
+
+    delay(500); // Delay untuk stabilisasi sensor
+}
